@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAG App</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+</head>
+
+<body>
+
+    <h1>NotebookLM Clone</h1>
+
+    <input type="file" id="file">
+
+    <button onclick="uploadPDF()">
+        Upload PDF
+    </button>
+
+    <hr>
+
+    <input
+        type="text"
+        id="question"
+        placeholder="Ask question..."
+    >
+
+    <button onclick="askQuestion()">
+        Ask
+    </button>
+
+    <h3>Answer:</h3>
+
+    <p id="answer"></p>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
