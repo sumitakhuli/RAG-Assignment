@@ -1,11 +1,15 @@
 import "dotenv/config";
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
 import express from "express";
 import cors from "cors";
 import multer from "multer";
 
 import fs from "fs";
-import pdf from "pdf-parse/lib/pdf-parse.js";
+
+const pdf = require("pdf-parse");
 
 import { GoogleGenerativeAI }
 from "@google/generative-ai";
@@ -22,9 +26,9 @@ app.use(express.json());
 app.use(express.static("."));
 
 
-// ==========================
+// =====================================
 // GEMINI SETUP
-// ==========================
+// =====================================
 
 const genAI =
     new GoogleGenerativeAI(
@@ -42,9 +46,9 @@ const chatModel =
     });
 
 
-// ==========================
+// =====================================
 // QDRANT SETUP
-// ==========================
+// =====================================
 
 const qdrant =
     new QdrantClient({
@@ -52,18 +56,18 @@ const qdrant =
     });
 
 
-// ==========================
+// =====================================
 // MULTER SETUP
-// ==========================
+// =====================================
 
 const upload = multer({
     dest: "uploads/",
 });
 
 
-// ==========================
-// CHUNKING FUNCTION
-// ==========================
+// =====================================
+// TEXT CHUNKING
+// =====================================
 
 function chunkText(
     text,
@@ -90,19 +94,20 @@ function chunkText(
 }
 
 
-// ==========================
+// =====================================
 // PDF UPLOAD ROUTE
-// ==========================
+// =====================================
 
 app.post(
     "/upload",
+
     upload.single("file"),
 
     async (req, res) => {
 
         try {
 
-            // Read PDF
+            // Read uploaded PDF
             const dataBuffer =
                 fs.readFileSync(
                     req.file.path
@@ -120,7 +125,7 @@ app.post(
             const chunks =
                 chunkText(text);
 
-            // Delete old collection
+            // Delete previous collection
             try {
 
                 await qdrant.deleteCollection(
@@ -138,7 +143,8 @@ app.post(
                 );
             }
 
-            // Create collection
+
+            // Create new collection
             await qdrant.createCollection(
                 "rag-docs",
                 {
@@ -166,6 +172,7 @@ app.post(
                     embeddingResult
                     .embedding
                     .values;
+
 
                 // Insert into Qdrant
                 await qdrant.upsert(
@@ -213,9 +220,9 @@ app.post(
 );
 
 
-// ==========================
+// =====================================
 // CHAT ROUTE
-// ==========================
+// =====================================
 
 app.post(
     "/chat",
@@ -227,7 +234,8 @@ app.post(
             const { question } =
                 req.body;
 
-            // Embed question
+
+            // Generate question embedding
             const queryEmbeddingResult =
                 await embeddingModel
                 .embedContent(question);
@@ -250,6 +258,7 @@ app.post(
                     }
                 );
 
+
             // Build context
             const context =
                 searchResults
@@ -259,14 +268,16 @@ app.post(
                 .join("\n\n");
 
 
-            // Generate answer
+            // Generate grounded answer
             const response =
                 await chatModel
                 .generateContent(`
 
 Answer ONLY from the context below.
 
-If answer is not present say:
+If the answer is not present
+in the context, say:
+
 "I could not find this in the document."
 
 Context:
@@ -276,8 +287,10 @@ Question:
 ${question}
 `);
 
+
             const answer =
                 response.response.text();
+
 
             res.json({
                 answer,
@@ -296,9 +309,9 @@ ${question}
 );
 
 
-// ==========================
+// =====================================
 // START SERVER
-// ==========================
+// =====================================
 
 app.listen(8000, () => {
 

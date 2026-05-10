@@ -1,37 +1,85 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>RAG App</title>
+<html lang="en">
 
-    <link rel="stylesheet"
-          href="style.css">
+<head>
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>NotebookLM Clone</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    />
 </head>
 
 <body>
 
-    <h1>NotebookLM Clone</h1>
+    <div class="container">
 
-    <input type="file" id="file">
+        <div class="card">
 
-    <button onclick="uploadPDF()">
-        Upload PDF
-    </button>
+            <h1>NotebookLM Clone</h1>
 
-    <hr>
+            <p class="subtitle">
+                Upload a PDF and chat with it using RAG
+            </p>
 
-    <input
-        type="text"
-        id="question"
-        placeholder="Ask question..."
-    >
+            <!-- Upload Section -->
+            <div class="section">
 
-    <button onclick="askQuestion()">
-        Ask
-    </button>
+                <h2>Upload PDF</h2>
 
-    <h3>Answer:</h3>
+                <input
+                    type="file"
+                    id="file"
+                    accept=".pdf"
+                />
 
-    <p id="answer"></p>
+                <button onclick="uploadPDF()">
+                    Upload
+                </button>
+
+                <p id="uploadStatus"></p>
+
+            </div>
+
+            <!-- Chat Section -->
+            <div class="section">
+
+                <h2>Ask Questions</h2>
+
+                <div class="chat-box" id="chatBox">
+
+                    <div class="bot-message">
+                        Upload a PDF to begin.
+                    </div>
+
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="text"
+                        id="question"
+                        placeholder="Ask something about the document..."
+                    />
+
+                    <button onclick="askQuestion()">
+                        Send
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
     <script src="script.js"></script>
 
